@@ -1,7 +1,7 @@
 # ewd-qoper8-express: Express integration module for ewd-qoper8
  
 Rob Tweed <rtweed@mgateway.com>  
-23 October 2016, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+24 February 2016, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 
@@ -17,8 +17,6 @@ This module may be used to integrate Express with ewd-qoper8, for handling incom
        npm install ewd-qoper8-express
 	   
 ## Using ewd-qoper8-express
-
-
 
   Full details and documentation can be found at
   [http://gradvs1.mgateway.com/download/ewd-qoper8.pdf](http://gradvs1.mgateway.com/download/ewd-qoper8.pdf)
