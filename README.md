@@ -30,10 +30,12 @@ This module may be used to integrate Express with ewd-qoper8, for handling incom
      var q = new qoper8.masterProcess();
      qx.init(q);
 
-     // define routing here
+     // define any routing here (see next sections)
 
      q.on('started', function() {
+       // specify your worker process module for handling messages
        this.worker.module = 'ewd-qoper8/lib/test/express-module';
+       // Express to listen on port 8080
        var server = app.listen(8080);
      });
 
@@ -44,6 +46,7 @@ result object as an HTTP application/json response
 
      app.post('/qoper8', function (req, res) {
        qx.handleMessage(req.body, function(resultObj) {
+         // optionally remove the ewd-qoper8 finished property
          delete resultObj.finished;
          res.send(resultObj);
        });
@@ -56,6 +59,17 @@ This packages up REST/HTTP requests as messages that are then handled by the han
 eg:
 
       app.use('/vista', qx.router());
+
+The queued messages will have the following properties:
+
+- application: matches the route, eg 'vista' in the example above
+- type: matches the 2nd part of the URL path.  eg /vista/login requests would have type: 'login'
+- method: matches the HTTP method
+- headers: contains the HTTP request headers (req.headers)
+- params: contains req.params
+- path: the URL path that followed the main route (eg everything after /vista)
+- query: contains req.query (ie any URL name/value pairs)
+- content: for POST requests, the parsed JSON payload 
 
 
 For more details and documentation, see:
