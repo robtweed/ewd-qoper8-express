@@ -1,7 +1,7 @@
 {
   "name": "ewd-qoper8-express",
-  "version": "1.0.1",
-  "description": "ewd-qoper8 message handlers for Express",
+  "version": "2.0.",
+  "description": "ewd-qoper8 message handlers & router for Express",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,10 +10,38 @@
     "type": "git",
     "url": "git+https://github.com/robtweed/ewd-qoper8-express.git"
   },
-  "author": "Rob Tweed, M/Gateway Developments Ltd",
+  "author": {
+    "name": "Rob Tweed, M/Gateway Developments Ltd"
+  },
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/robtweed/ewd-qoper8-express/issues"
   },
-  "homepage": "https://github.com/robtweed/ewd-qoper8-express#readme"
+  "homepage": "https://github.com/robtweed/ewd-qoper8-express#readme",
+  "gitHead": "7c9a1760dd0c4ac7ba86c873b9961807ecb7333b",
+  "_id": "ewd-qoper8-express@1.0.1",
+  "_shasum": "a3cc3a5b279cd086e0412c0cdd8f591140955c52",
+  "_from": "ewd-qoper8-express@*",
+  "_npmVersion": "2.11.3",
+  "_nodeVersion": "0.12.7",
+  "_npmUser": {
+    "name": "robtweed",
+    "email": "rtweed@mgateway.com"
+  },
+  "dist": {
+    "shasum": "a3cc3a5b279cd086e0412c0cdd8f591140955c52",
+    "tarball": "http://registry.npmjs.org/ewd-qoper8-express/-/ewd-qoper8-express-1.0.1.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "robtweed",
+      "email": "rtweed@mgateway.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-5-east.internal.npmjs.com",
+    "tmp": "tmp/ewd-qoper8-express-1.0.1.tgz_1456477974005_0.595004718285054"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/ewd-qoper8-express/-/ewd-qoper8-express-1.0.1.tgz"
 }
