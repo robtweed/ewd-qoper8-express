@@ -20,34 +20,34 @@ This module may be used to integrate Express with ewd-qoper8, for handling incom
 
 ### Setup
 
-   var express = require('express');
-   var bodyParser = require('body-parser');
-   var qoper8 = require('ewd-qoper8');
-   var qx = require('ewd-qoper8-express');
+     var express = require('express');
+     var bodyParser = require('body-parser');
+     var qoper8 = require('ewd-qoper8');
+     var qx = require('ewd-qoper8-express');
 
-   var app = express();
-   app.use(bodyParser.json());
-   var q = new qoper8.masterProcess();
-   qx.init(q);
+     var app = express();
+     app.use(bodyParser.json());
+     var q = new qoper8.masterProcess();
+     qx.init(q);
 
-   // define routing here
+     // define routing here
 
-   q.on('started', function() {
-     this.worker.module = 'ewd-qoper8/lib/test/express-module';
-     var server = app.listen(8080);
-   });
+     q.on('started', function() {
+       this.worker.module = 'ewd-qoper8/lib/test/express-module';
+       var server = app.listen(8080);
+     });
 
 ### Handling messages
 
 This example will queue an incoming POSTed JSON payload, send it to a worker process for processing, and then return the
 result object as an HTTP application/json response
 
-   app.post('/qoper8', function (req, res) {
-     qx.handleMessage(req.body, function(resultObj) {
-       delete resultObj.finished;
-       res.send(resultObj);
+     app.post('/qoper8', function (req, res) {
+       qx.handleMessage(req.body, function(resultObj) {
+         delete resultObj.finished;
+         res.send(resultObj);
+       });
      });
-   });
 
 ### Using the default router
 
@@ -55,8 +55,7 @@ This packages up REST/HTTP requests as messages that are then handled by the han
 
 eg:
 
-    app.use('/vista', qx.router());
-
+      app.use('/vista', qx.router());
 
 
 For more details and documentation, see:
