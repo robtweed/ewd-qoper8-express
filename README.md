@@ -74,7 +74,7 @@ Two events are emitted in the worker on receipt of these messages:
 
 - expressMessage: all express/qoper8 messages can be handled with this.  
 
-      worker.on('expressMessage', function(messageObj, send, finished) {...});
+         worker.on('expressMessage', function(messageObj, send, finished) {...});
 
 If expressMessage events aren't handled, then each message will trigger an event based on the message type value, eg:
 
