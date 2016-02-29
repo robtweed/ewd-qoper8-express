@@ -1,7 +1,7 @@
 /*!
 
  ----------------------------------------------------------------------------
- | ewd-qoper8-express.js: Express Integration Module for ewd-qpoper8        |
+ | ewd-qoper8-express   : Express Integration Module for ewd-qpoper8        |
  |                                                                          |
  | Copyright (c) 2016 M/Gateway Developments Ltd,                           |
  | Reigate, Surrey UK.                                                      |
