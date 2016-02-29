@@ -62,14 +62,50 @@ eg:
 
 The queued messages will have the following properties:
 
-- application: matches the route, eg 'vista' in the example above
-- type: matches the 2nd part of the URL path.  eg /vista/login requests would have type: 'login'
+- type: combines the route and the 2nd part of the URL path.  eg /vista/login requests would have type: 'vista.login'
 - method: matches the HTTP method
 - headers: contains the HTTP request headers (req.headers)
 - params: contains req.params
 - path: the URL path that followed the main route (eg everything after /vista)
 - query: contains req.query (ie any URL name/value pairs)
 - content: for POST requests, the parsed JSON payload 
+
+Two events are emitted in the worker on receipt of these messages:
+
+- expressMessage: all express/qoper8 messages can be handled with this.  
+
+      worker.on('expressMessage', function(messageObj, send, finished) {...});
+
+If expressMessage events aren't handled, then each message will trigger an event based on the message type value, eg:
+
+      worker.on('vista.login', function(messageObj, send, finished) {...});
+
+For both events, the callback function takes 3 arguments:
+
+- messageObj: the message object (as described above)
+- send: function for sending a message back to the master process without releasing the worker process back to the available pool
+- finished: function for sending a message back to the master process and releasing the worker process back to the available pool
+
+The send and finished functions take a single argument: response object
+
+Error responses should be defined as follows:
+
+      finished({
+        error: 'Error message here...'
+      });
+
+You can optionally specify an HTTP status code for the error response.  By default it will be 400.
+
+     finished({
+       error: 'Error message here...',
+       status: {
+         code: 403
+       }
+     });
+
+If an Express/qoper8 message is not handled by either an 'expressMessage' or type-specific handler, then an error message will be
+sent to the master process, telling it that no handler was available for the message, and the worker will be released
+back to the available pool.
 
 
 For more details and documentation, see:
