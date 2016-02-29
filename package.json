@@ -1,6 +1,6 @@
 {
   "name": "ewd-qoper8-express",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "ewd-qoper8 message handlers & router for Express",
   "main": "index.js",
   "scripts": {
