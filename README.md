@@ -76,7 +76,7 @@ Two events are emitted in the worker on receipt of these messages:
 
          worker.on('expressMessage', function(messageObj, send, finished) {...});
 
-If expressMessage events aren't handled, then each message will trigger an event based on the message type value, eg:
+- each message will also trigger an event based on the message type value, eg:
 
       worker.on('vista.login', function(messageObj, send, finished) {...});
 
@@ -102,6 +102,9 @@ You can optionally specify an HTTP status code for the error response.  By defau
          code: 403
        }
      });
+
+Note that if you handle messages using either of these events, it is your responsibility to release the worker process
+back to the available pool when you've finished with it, by using the finished() method.
 
 If an Express/qoper8 message is not handled by either an 'expressMessage' or type-specific handler, then an error message will be
 sent to the master process, telling it that no handler was available for the message, and the worker will be released
