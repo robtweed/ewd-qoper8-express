@@ -20,6 +20,8 @@ This module may be used to integrate Express with ewd-qoper8, for handling incom
 
 ### Setup
 
+#### Within your ewd-qoper8 master process:
+
      var express = require('express');
      var bodyParser = require('body-parser');
      var qoper8 = require('ewd-qoper8');
@@ -38,6 +40,22 @@ This module may be used to integrate Express with ewd-qoper8, for handling incom
        // Express to listen on port 8080
        var server = app.listen(8080);
      });
+
+#### Within your ewd-oper8 worker module:
+
+Load the worker-side handler module, eg:
+
+     function workerListeners(worker) {
+
+       var handleExpressMessage = require('ewd-qoper8-express').workerMessage;
+
+       worker.on('message', function(messageObj) {
+         handleExpressMessage.call(this, messageObj);
+       });
+
+       // add any other ewd-qoper8 worker event handlers
+     }
+
 
 ### Handling messages
 
@@ -70,15 +88,15 @@ The queued messages will have the following properties:
 - query: contains req.query (ie any URL name/value pairs)
 - content: for POST requests, the parsed JSON payload 
 
-Two events are emitted in the worker on receipt of these messages:
+The ewd-qoper8-express worker-side module emits two events on receipt of these messages:
 
 - expressMessage: all express/qoper8 messages can be handled with this.  
 
          worker.on('expressMessage', function(messageObj, send, finished) {...});
 
-- each message will also trigger an event based on the message type value, eg:
+- each message will also emit an event that is specific to the message type value, eg:
 
-      worker.on('vista.login', function(messageObj, send, finished) {...});
+         worker.on('vista.login', function(messageObj, send, finished) {...});
 
 For both events, the callback function takes 3 arguments:
 
@@ -103,13 +121,12 @@ You can optionally specify an HTTP status code for the error response.  By defau
        }
      });
 
-Note that if you handle messages using either of these events, it is your responsibility to release the worker process
-back to the available pool when you've finished with it, by using the finished() method.
-
 If an Express/qoper8 message is not handled by either an 'expressMessage' or type-specific handler, then an error message will be
 sent to the master process, telling it that no handler was available for the message, and the worker will be released
 back to the available pool.
 
+Note that if you handle messages using either of these events, it is your responsibility to release the worker process
+back to the available pool when you've finished with it, by using the finished() method.
 
 For more details and documentation, see:
  [http://gradvs1.mgateway.com/download/ewd-qoper8.pdf](http://gradvs1.mgateway.com/download/ewd-qoper8.pdf)
