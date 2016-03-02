@@ -1,7 +1,7 @@
 {
   "name": "ewd-qoper8-express",
-  "version": "2.2.0",
-  "description": "ewd-qoper8 message handlers & router for Express",
+  "version": "3.0.0",
+  "description": "ewd-qoper8 message handling and router for Express",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
