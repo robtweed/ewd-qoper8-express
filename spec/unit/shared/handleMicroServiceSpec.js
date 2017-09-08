@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 module.exports = function (boot, route, type) {
   var destinationsSpec = require('./destinations')(boot, type);
 
@@ -17,7 +15,14 @@ module.exports = function (boot, route, type) {
         handleResponse = _handleResponse;
 
         q.router.hasRoute.and.returnValue(route);
-        q.jwt.handlers.updateJWTExpiry.and.returnValue('updated-jwt-token');
+        q.handleMessage.and.callFake(function (msg, cb) {
+          cb({
+            message: {
+              ok: true,
+              jwt: 'updated-jwt-token'
+            }
+          });
+        });
 
         done();
       });
@@ -29,34 +34,24 @@ module.exports = function (boot, route, type) {
       expect(q.jwt.handlers.getRestJWT).toHaveBeenCalledWith(messageObj);
     });
 
-    describe('And getRestJWT returns no token', function () {
+    describe('And getRestJWT returns empty token', function () {
       beforeEach(function () {
         q.jwt.handlers.getRestJWT.and.returnValue('');
       });
 
-      destinationsSpec.whenNoTokenIsReturned();
+      destinationsSpec.whenNoTokenReturned();
     });
 
-    describe('And getRestJWT returns token', function () {
+    describe('And getRestJWT returns non empty token', function () {
       beforeEach(function () {
         q.jwt.handlers.getRestJWT.and.returnValue('jwt-token');
       });
 
-      it('should call isJWTValid with correct arguments', function () {
-        q.jwt.handlers.isJWTValid.and.returnValue({
-          ok: true
-        });
-
-        q.microServiceRouter(messageObj, handleResponse);
-
-        expect(q.jwt.handlers.isJWTValid).toHaveBeenCalledWith('jwt-token');
-      });
-
-      destinationsSpec.whenNoTokenIsNotReturned();
+      destinationsSpec.whenTokenReturned();
     });
 
-    destinationsSpec.shouldCallMicroServiceClientSendMethod();
-    destinationsSpec.shouldCallHandleResponse();
+    destinationsSpec.shouldHandleErrorResponse();
+
     destinationsSpec.shouldCallRouteOnResponse(route);
   });
 };

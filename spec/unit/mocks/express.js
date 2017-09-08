@@ -1,7 +1,7 @@
 'use strict';
 
 function Router () {
-  var verbs = ['GET', 'POST', 'PUT', 'DELETE'];
+  var verbs = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
   var router = {
     routes: [],

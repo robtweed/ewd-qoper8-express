@@ -7,6 +7,7 @@ var mockResponse = require('./mocks/response');
 var mockExpress = require('./mocks/express');
 var mockRouter = require('./mocks/router');
 var qx = rewire('../../lib/express');
+var handleResponseErrorSpec = require('./shared/handleResponseErrorSpec');
 
 describe(' - unit/express:', function () {
   var MasterProcess;
@@ -49,21 +50,44 @@ describe(' - unit/express:', function () {
       expect(qx.__get__('qoper8')).toBe(q);
     });
 
-    it('should not init workerResponseHandlers', function () {
-      var workerResponseHandlers = {};
-      q.workerResponseHandlers = workerResponseHandlers;
+    describe('workerResponseHandlers', function () {
+      it('should be initialized for qoper8', function () {
+        expect(q.workerResponseHandlers).toBeUndefined();
 
-      qx.init(q);
+        qx.init(q);
 
-      expect(q.workerResponseHandlers).toBe(workerResponseHandlers);
+        expect(q.workerResponseHandlers).toEqual({});
+      });
+
+      it('should be not initialized for qoper8', function () {
+        var workerResponseHandlers = q.workerResponseHandlers = {};
+
+        qx.init(q);
+
+        expect(q.workerResponseHandlers).toBe(workerResponseHandlers);
+      });
     });
 
-    it('should init workerResponseHandlers', function () {
-      expect(q.workerResponseHandlers).not.toBeDefined();
+    describe('microServiceRouter', function () {
+      var revert;
 
-      qx.init(q);
+      beforeEach(function () {
+        revert = qx.__set__('microServiceRouter', jasmine.createSpy());
+      });
 
-      expect(q.workerResponseHandlers).toEqual({});
+      afterEach(function () {
+        revert();
+      });
+
+      it('should be attached to qoper8', function () {
+        var callback = qx.__get__('microServiceRouter');
+
+        expect(q.microServiceRouter).toBeUndefined();
+
+        qx.init(q);
+
+        expect(q.microServiceRouter).toBe(callback);
+      });
     });
   });
 
@@ -131,7 +155,7 @@ describe(' - unit/express:', function () {
       });
     });
 
-    ['GET', 'POST', 'PUT', 'DELETE'].forEach(function (verb) {
+    ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].forEach(function (verb) {
       describe(verb, function () {
         var req;
         var res;
@@ -357,6 +381,10 @@ describe(' - unit/express:', function () {
       var resultObj;
       var timeout = 5 * 1000;
 
+      var boot = function (cb) {
+        cb(qx, q, req, res, next, timeout);
+      };
+
       beforeEach(function () {
         resultObj = {
           message: {}
@@ -432,7 +460,7 @@ describe(' - unit/express:', function () {
           var handleResponse = q.handleMessage.calls.argsFor(0)[1];
           handleResponse(resultObj);
 
-          expect(res.locals.message.restMessage).not.toBeDefined();
+          expect(res.locals.message.restMessage).toBeUndefined();
         });
       });
 
@@ -462,83 +490,91 @@ describe(' - unit/express:', function () {
         });
       });
 
-      describe('message.error', function () {
-        beforeEach(function () {
-          resultObj.message.error = 'foo';
-        });
-
-        describe('When next callback passed', function () {
-          it('should call next', function () {
-            qx.handleMessage(req, res, next);
-            jasmine.clock().tick(timeout);
-
-            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
-            handleResponse(resultObj);
-
-            expect(res.locals.message).toBe(resultObj.message);
-            expect(next).toHaveBeenCalled();
-          });
-        });
-
-        describe('When next callback NOT passed', function () {
-          it('should set X-ResponseTime header', function () {
-            qx.handleMessage(req, res);
-            jasmine.clock().tick(timeout);
-
-            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
-            handleResponse(resultObj);
-
-            expect(res.set).toHaveBeenCalledWith('X-ResponseTime', '5000ms');
-          });
-
-          it('should send response', function () {
-            qx.handleMessage(req, res);
-            jasmine.clock().tick(timeout);
-
-            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
-            handleResponse(resultObj);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.send).toHaveBeenCalledWith({
-              error: 'foo'
-            });
-          });
-
-          describe('custom status code', function () {
-            beforeEach(function () {
-              resultObj.message.status = {
-                code: 500
+      describe('error handling', function () {
+        var config = {
+          'When resultObj.message.error': {
+            nextCallback: true,
+            getResultObj: function () {
+              return {
+                message: {
+                  error: 'foo'
+                }
               };
-            });
-
-            it('should send custom status code', function () {
-              qx.handleMessage(req, res);
-              jasmine.clock().tick(timeout);
-
-              var handleResponse = q.handleMessage.calls.argsFor(0)[1];
-              handleResponse(resultObj);
-
-              expect(res.status).toHaveBeenCalledWith(500);
-            });
-          });
-
-          describe('custom error response', function () {
-            beforeEach(function () {
-              resultObj.message.error = {
-                response: 'bar'
+            },
+            getExpectedObj: function () {
+              return {
+                error: 'foo'
               };
-            });
+            },
+            decorators: {
+              statusCode: function (resultObj) {
+                resultObj.message.status = {
+                  code: 500
+                };
 
-            it('should send custom error response', function () {
-              qx.handleMessage(req, res);
-              jasmine.clock().tick(timeout);
+                return resultObj.message.status.code;
+              },
+              response: function (resultObj) {
+                resultObj.message.error = {
+                  response: 'bar'
+                };
 
-              var handleResponse = q.handleMessage.calls.argsFor(0)[1];
-              handleResponse(resultObj);
+                return resultObj.message.error.response;
+              }
+            }
+          },
+          'When only resultObj.error': {
+            nextCallback: true,
+            getResultObj: function () {
+              return {
+                error: 'bar'
+              };
+            },
+            getExpectedObj: function () {
+              return {
+                  error: 'bar'
+              };
+            }
+          },
+          'When resultObj.message undefined': {
+            nextCallback: false,
+            getResultObj: function () {
+              return {};
+            },
+            getExpectedObj: function () {
+              return {
+                error: 'Invalid or missing response'
+              };
+            },
+          },
+          'When resultObj.message.error and resultObj.status': {
+            nextCallback: true,
+            getResultObj: function () {
+              return {
+                message: {
+                  error: 'foo'
+                }
+              };
+            },
+            getExpectedObj: function () {
+              return {
+                error: 'foo'
+              };
+            },
+            decorators: {
+              statusCode: function (resultObj) {
+                resultObj.status = {
+                  code: 403
+                };
 
-              expect(res.send).toHaveBeenCalledWith('bar');
-            });
-          });
+                return resultObj.status.code;
+              }
+            }
+          }
+        };
+
+        Object.keys(config).forEach(function (name) {
+          handleResponseErrorSpec(name, boot, config[name]);
         });
       });
     });
@@ -615,5 +651,4 @@ describe(' - unit/express:', function () {
       expect(actual).toBeFalsy();
     });
   });
-
 });
