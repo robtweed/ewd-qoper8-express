@@ -1,6 +1,6 @@
 # ewd-qoper8-express: Express integration module for ewd-qoper8
 
-[![Build Status](https://travis-ci.org/robtweed/ewd-qoper8-express.svg?branch=tests)](https://travis-ci.org/robtweed/ewd-qoper8-express)
+[![Build Status](https://travis-ci.org/robtweed/ewd-qoper8-express.svg?branch=master)](https://travis-ci.org/robtweed/ewd-qoper8-express)
 [![Coverage Status](https://coveralls.io/repos/github/robtweed/ewd-qoper8-express/badge.svg?branch=master)](https://coveralls.io/github/robtweed/ewd-qoper8-express?branch=master)
 
 Rob Tweed <rtweed@mgateway.com>  
