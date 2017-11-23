@@ -1,6 +1,7 @@
 'use strict';
 
 var events = require('events');
+var mockery = require('mockery');
 var rewire = require('rewire');
 var mockRequest = require('./mocks/request');
 var mockResponse = require('./mocks/response');
@@ -9,9 +10,14 @@ var mockRouter = require('./mocks/router');
 var qx = rewire('../../lib/express');
 var handleResponseErrorSpec = require('./shared/handleResponseErrorSpec');
 
-describe(' - unit/express:', function () {
+describe('unit/express:', function () {
   var MasterProcess;
   var q;
+
+  var revert = function (obj) {
+    obj.__revert__();
+    delete obj.__revert__;
+  };
 
   beforeAll(function () {
     MasterProcess = function () {
@@ -22,6 +28,12 @@ describe(' - unit/express:', function () {
 
     MasterProcess.prototype = Object.create(events.EventEmitter.prototype);
     MasterProcess.prototype.constructor = MasterProcess;
+
+    mockery.enable();
+  });
+
+  afterAll(function () {
+    mockery.disable();
   });
 
   beforeEach(function () {
@@ -31,6 +43,8 @@ describe(' - unit/express:', function () {
   afterEach(function () {
     q.removeAllListeners();
     q = null;
+
+    mockery.deregisterAll();
   });
 
   describe('#build', function () {
@@ -102,19 +116,20 @@ describe(' - unit/express:', function () {
   });
 
   describe('#router', function () {
+    var express;
     var handleMessage;
-    var revertExpress;
-    var revertHandleMessage;
 
     beforeEach(function () {
-      revertExpress = qx.__set__('express', mockExpress.mock());
+      express = mockExpress.mock();
+      express.__revert__ = qx.__set__('express', express);
+
       handleMessage = jasmine.createSpy();
-      revertHandleMessage = qx.__set__('handleMessage', handleMessage);
+      handleMessage.__revert__ = qx.__set__('handleMessage', handleMessage);
     });
 
     afterEach(function () {
-      revertHandleMessage();
-      revertExpress();
+      revert(express);
+      revert(handleMessage);
     });
 
     it('should be function', function () {
@@ -248,7 +263,7 @@ describe(' - unit/express:', function () {
     });
 
     describe('microServiceRouter', function () {
-      var revert;
+      var microServiceRouter;
 
       beforeEach(function () {
         q.router = mockRouter.mock();
@@ -257,19 +272,18 @@ describe(' - unit/express:', function () {
         q.u_services = require('./fixtures/servicesConfig');
         /*jshint camelcase: true */
 
-        revert = qx.__set__('microServiceRouter', jasmine.createSpy());
+        microServiceRouter = jasmine.createSpy();
+        microServiceRouter.__revert__ = qx.__set__('microServiceRouter', microServiceRouter);
       });
 
       afterEach(function () {
-        revert();
+        revert(microServiceRouter);
       });
 
       it('should call microServiceRouter with correct arguments', function () {
-        var callback = qx.__get__('microServiceRouter');
-
         qx.handleMessage(req, res, next);
 
-        expect(callback).toHaveBeenCalledWith({
+        expect(microServiceRouter).toHaveBeenCalledWithContext(q, {
           type: 'ewd-qoper8-express',
           path: req.originalUrl,
           method: req.method,
@@ -465,27 +479,87 @@ describe(' - unit/express:', function () {
       });
 
       describe('ewd_application', function () {
-        beforeEach(function () {
-          /*jshint camelcase: false */
-          resultObj.message = {
-            type: 'foo',
-            ewd_application: process.cwd() + '/spec/unit/fixtures/module'
-          };
-          /*jshint camelcase: true */
-        });
-
         describe('workerResponseHandlers', function () {
           it('should load worker response intercept handler module', function () {
+            var appModule = {
+              workerResponseHandlers: jasmine.createSpyObj(['foo'])
+            };
+
+            /*jshint camelcase: false */
+            appModule.workerResponseHandlers.foo.and.returnValue({
+              type: 'foo2',
+              ewd_application: 'quux2'
+            });
+            /*jshint camelcase: true */
+
+            mockery.registerMock('quux', appModule);
+
+            /*jshint camelcase: false */
+            resultObj.message = {
+              type: 'foo',
+              ewd_application: 'quux'
+            };
+            /*jshint camelcase: true */
+
             qx.handleMessage(req, res, next);
             jasmine.clock().tick(timeout);
 
             var handleResponse = q.handleMessage.calls.argsFor(0)[1];
             handleResponse(resultObj);
 
+            expect(appModule.workerResponseHandlers.foo).toHaveBeenCalledWithContext(q, resultObj.message);
             expect(res.locals.message).toEqual({
-              type: 'foo',
-              module: true
+              type: 'foo2'
             });
+          });
+
+          it('should handle when no worker response intercepted handler module for app or unable to load it', function () {
+            /*jshint camelcase: false */
+            resultObj.message = {
+              type: 'foo',
+              ewd_application: 'quux'
+            };
+            /*jshint camelcase: true */
+
+            qx.handleMessage(req, res, next);
+            jasmine.clock().tick(timeout);
+
+            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
+            handleResponse(resultObj);
+
+            expect(q.workerResponseHandlers).toEqual({
+              quux: {}
+            });
+          });
+
+          it('should not load worker response intercept handler module', function () {
+            var appHandlers = jasmine.createSpyObj(['foo']);
+
+            /*jshint camelcase: false */
+            appHandlers.foo.and.returnValue({
+              type: 'foo2',
+              ewd_application: 'quux2'
+            });
+            /*jshint camelcase: true */
+
+            q.workerResponseHandlers = {
+              quux: appHandlers
+            };
+
+            /*jshint camelcase: false */
+            resultObj.message = {
+              type: 'foo',
+              ewd_application: 'quux'
+            };
+            /*jshint camelcase: true */
+
+            qx.handleMessage(req, res, next);
+            jasmine.clock().tick(timeout);
+
+            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
+            handleResponse(resultObj);
+
+            expect(appHandlers.foo).toHaveBeenCalledWithContext(q, resultObj.message);
           });
         });
       });

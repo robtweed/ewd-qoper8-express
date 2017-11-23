@@ -3,11 +3,11 @@
 var request = require('supertest')('http://localhost:8080');
 var utils = require('../utils');
 
-describe(' - integration/ewd-qoper8-express/sending-error-responses:', function () {
+describe('integration/ewd-qoper8-express/sending-error-responses:', function () {
   var cp;
 
   beforeAll(function (done) {
-    cp = utils.fork(require.resolve('./express'), done);
+    cp = utils.fork(require.resolve('./server'), done);
   });
 
   afterAll(function (done) {
@@ -49,6 +49,22 @@ describe(' - integration/ewd-qoper8-express/sending-error-responses:', function 
   it('should have no handler', function (done) {
     request.
       get('/qoper8/nohandler').
+      expect(400).
+      expect(function (res) {
+        var body = res.body;
+
+        expect(body).toEqual({
+          error: 'No handler found for ewd-qoper8-express message'
+        });
+      }).
+      end(function (err) {
+        return err ? done.fail(err) : done();
+      });
+  });
+
+  it('should have no handler and pass error via next callback', function (done) {
+    request.
+      get('/qoper8/nohandler-nextCallback').
       expect(400).
       expect(function (res) {
         var body = res.body;

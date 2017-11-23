@@ -1,31 +1,30 @@
 # ewd-qoper8-express: Express integration module for ewd-qoper8
 
-[![Build Status](https://travis-ci.org/robtweed/ewd-qoper8-express.svg?branch=master)](https://travis-ci.org/robtweed/ewd-qoper8-express)
-[![Coverage Status](https://coveralls.io/repos/github/robtweed/ewd-qoper8-express/badge.svg?branch=master)](https://coveralls.io/github/robtweed/ewd-qoper8-express?branch=master)
+[![Build Status](https://travis-ci.org/robtweed/ewd-qoper8-express.svg?branch=master)](https://travis-ci.org/robtweed/ewd-qoper8-express) [![Coverage Status](https://coveralls.io/repos/github/robtweed/ewd-qoper8-express/badge.svg?branch=master)](https://coveralls.io/github/robtweed/ewd-qoper8-express?branch=master) [![Dependency Status](https://gemnasium.com/badges/github.com/robtweed/ewd-qoper8-express.svg)](https://gemnasium.com/github.com/robtweed/ewd-qoper8-express)
 
 Rob Tweed <rtweed@mgateway.com>  
-24 February 2016, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+24 February 2016-17, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com).
 
 Twitter: [@rtweed](https://twitter.com/rtweed)
 
-Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/enterprise-web-developer-community](http://groups.google.co.uk/group/enterprise-web-developer-community)
+Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/enterprise-web-developer-community](http://groups.google.co.uk/group/enterprise-web-developer-community).
 
-Thanks to Ward De Backer for assistance with bug tracking, fixing and functionality suggestions
+Thanks to [Ward De Backer](https://github.com/wdbacker) for assistance with bug tracking, fixing and functionality suggestions.
 
 
 ## ewd-qoper8-express
 
-This module may be used to integrate Express with ewd-qoper8, for simpler routing and handling of incoming HTTP 
-requests within ewd-qoper8's master and worker processes.
+This module may be used to integrate Express with ewd-qoper8, for simpler routing and handling of incoming HTTP requests within ewd-qoper8's master and worker processes.
 
 
 ## Installing
 
     npm install ewd-qoper8-express
 
+
 ## Getting Started
 
-index.js
+server.js
 ```js
 'use strict';
 
@@ -49,14 +48,14 @@ app.get('/qoper8/test', function (req, res) {
 });
 
 q.on('started', function () {
-  this.worker.module = process.cwd() + '/examples/modules/express-module1';
+  this.worker.module = process.cwd() + '/worker-module';
   app.listen(8080);
 });
 
 q.start();
 
 ```
-express-module1.js
+worker-module.js
 ```js
 'use strict';
 
@@ -75,20 +74,27 @@ module.exports = function () {
 
 ```
 
+## Debug
+
+```
+DEBUG=ewd-qoper8-express server.js
+```
+
 
 ## Examples
 
-  - For a complete, working examples, refer to the [examples](https://github.com/robtweed/ewd-qoper8-express-examples) that uses `ewd-qoper8-express`.
-  - **ewd-qoper8**: Refer to the full details and documentation: [tutorial](http://gradvs1.mgateway.com/download/ewd-qoper8.pdf) / [examples](https://github.com/robtweed/ewd-qoper8-examples)
+  - For a complete, working examples, refer to the [ewd-qoper8-express-examples](https://github.com/robtweed/ewd-qoper8-express-examples) that uses `ewd-qoper8-express`.
+  - **ewd-qoper8**: Refer to the full details and documentation: [tutorial](http://gradvs1.mgateway.com/download/ewd-qoper8.pdf) / [examples](https://github.com/robtweed/ewd-qoper8-examples).
 
 
 ## Related Modules
 
- - [ewd-qoper8](https://github.com/robtweed/ewd-qoper8) - Node.js Message Queue and Multi-Process Manager
+ - [ewd-qoper8](https://github.com/robtweed/ewd-qoper8) - Node.js Message Queue and Multi-Process Manager.
 
 
 ## License
 
+```
  Copyright (c) 2016 M/Gateway Developments Ltd,                           
  Reigate, Surrey UK.                                                      
  All rights reserved.                                                     
@@ -108,3 +114,4 @@ module.exports = function () {
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
   See the License for the specific language governing permissions and      
    limitations under the License.      
+```

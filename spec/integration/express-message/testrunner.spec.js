@@ -3,11 +3,11 @@
 var request = require('supertest')('http://localhost:8080');
 var utils = require('../utils');
 
-describe(' - integration/ewd-qoper8-express/express-message:', function () {
+describe('integration/ewd-qoper8-express/express-message:', function () {
   var cp;
 
   beforeAll(function (done) {
-    cp = utils.fork(require.resolve('./express'), done);
+    cp = utils.fork(require.resolve('./server'), done);
   });
 
   afterAll(function (done) {
@@ -37,11 +37,9 @@ describe(' - integration/ewd-qoper8-express/express-message:', function () {
       expect(function (res) {
         var body = res.body;
 
-        expect(body.type).toBe('non-express-message');
-        expect(body.finished).toBeTruthy();
-        expect(body.message.messageType).toBe('non-express');
-        expect(body.message.workerSent).toMatch(/^hello from worker \d{4,5}$/);
-        expect(body.message.time).toMatch(/(\w{3}) (\w{3}) (\d{2}) (\d{4}) ((\d{2}):(\d{2}):(\d{2})) GMT\+\d{4}/);
+        expect(body.messageType).toBe('non-express');
+        expect(body.workerSent).toMatch(/^hello from worker \d{4,5}$/);
+        expect(body.time).toMatch(/(\w{3}) (\w{3}) (\d{2}) (\d{4}) ((\d{2}):(\d{2}):(\d{2})) GMT\+\d{4}/);
       }).
       end(function (err) {
         return err ? done.fail(err) : done();
