@@ -480,7 +480,7 @@ describe('unit/express:', function () {
 
       describe('ewd_application', function () {
         describe('workerResponseHandlers', function () {
-          it('should load worker response intercept handler module', function () {
+          it('should load worker response handlers from application module', function () {
             var appModule = {
               workerResponseHandlers: jasmine.createSpyObj(['foo'])
             };
@@ -513,7 +513,30 @@ describe('unit/express:', function () {
             });
           });
 
-          it('should handle when no worker response intercepted handler module for app or unable to load it', function () {
+          it('should use default worker response handlers from application module', function () {
+            var appModule = {};
+
+            mockery.registerMock('quux', appModule);
+
+            /*jshint camelcase: false */
+            resultObj.message = {
+              type: 'foo',
+              ewd_application: 'quux'
+            };
+            /*jshint camelcase: true */
+
+            qx.handleMessage(req, res, next);
+            jasmine.clock().tick(timeout);
+
+            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
+            handleResponse(resultObj);
+
+            expect(res.locals.message).toEqual({
+              type: 'foo'
+            });
+          });
+
+          it('should unable to load application module', function () {
             /*jshint camelcase: false */
             resultObj.message = {
               type: 'foo',
@@ -532,7 +555,7 @@ describe('unit/express:', function () {
             });
           });
 
-          it('should not load worker response intercept handler module', function () {
+          it('should use loaded application module', function () {
             var appHandlers = jasmine.createSpyObj(['foo']);
 
             /*jshint camelcase: false */
