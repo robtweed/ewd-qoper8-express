@@ -29,7 +29,10 @@ describe('unit/express:', function () {
     MasterProcess.prototype = Object.create(events.EventEmitter.prototype);
     MasterProcess.prototype.constructor = MasterProcess;
 
-    mockery.enable();
+    mockery.enable({
+      warnOnReplace: false,
+      warnOnUnregistered: false
+    });
   });
 
   afterAll(function () {
