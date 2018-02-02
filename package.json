@@ -1,6 +1,6 @@
 {
   "name": "ewd-qoper8-express",
-  "version": "3.22.0",
+  "version": "3.23.6",
   "description": "ewd-qoper8 message handling and router for Express",
   "main": "index.js",
   "engines": {
@@ -48,12 +48,12 @@
     "body-parser": "^1.18.2",
     "coveralls": "^3.0.0",
     "ewd-qoper8": "^3.16.1",
-    "jasmine": "^2.8.0",
+    "jasmine": "^2.9.0",
     "jasmine-spec-reporter": "^4.1.1",
     "jasmine-spy-matchers": "^1.2.0",
     "jshint": "^2.9.5",
     "mockery": "^2.1.0",
-    "nyc": "^11.3.0",
+    "nyc": "^11.4.1",
     "pre-commit": "^1.2.2",
     "rewire": "^2.5.2",
     "supertest": "^3.0.0"

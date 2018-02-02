@@ -22,6 +22,13 @@ describe('unit/express:', function () {
   beforeAll(function () {
     MasterProcess = function () {
       this.handleMessage = jasmine.createSpy();
+      this.userDefined = {
+        config: {
+          moduleMap: {
+            quuxbaz: 'quux'
+          }
+        }
+      };
 
       events.EventEmitter.call(this);
     };
@@ -482,14 +489,18 @@ describe('unit/express:', function () {
       });
 
       describe('ewd_application', function () {
+        beforeEach(function () {
+          req.params.type = 'baz';
+        });
+
         describe('workerResponseHandlers', function () {
           it('should load worker response handlers from application module', function () {
             var appModule = {
-              workerResponseHandlers: jasmine.createSpyObj(['foo'])
+              workerResponseHandlers: jasmine.createSpyObj(['baz'])
             };
 
             /*jshint camelcase: false */
-            appModule.workerResponseHandlers.foo.and.returnValue({
+            appModule.workerResponseHandlers.baz.and.returnValue({
               type: 'foo2',
               ewd_application: 'quux2'
             });
@@ -510,7 +521,40 @@ describe('unit/express:', function () {
             var handleResponse = q.handleMessage.calls.argsFor(0)[1];
             handleResponse(resultObj);
 
-            expect(appModule.workerResponseHandlers.foo).toHaveBeenCalledWithContext(q, resultObj.message);
+            expect(appModule.workerResponseHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message);
+            expect(res.locals.message).toEqual({
+              type: 'foo2'
+            });
+          });
+
+          it('should load worker response handlers from application module using moduleMap', function () {
+            var appModule = {
+              workerResponseHandlers: jasmine.createSpyObj(['baz'])
+            };
+
+            /*jshint camelcase: false */
+            appModule.workerResponseHandlers.baz.and.returnValue({
+              type: 'foo2',
+              ewd_application: 'quux2'
+            });
+            /*jshint camelcase: true */
+
+            mockery.registerMock('quux', appModule);
+
+            /*jshint camelcase: false */
+            resultObj.message = {
+              type: 'foo',
+              ewd_application: 'quuxbaz'
+            };
+            /*jshint camelcase: true */
+
+            qx.handleMessage(req, res, next);
+            jasmine.clock().tick(timeout);
+
+            var handleResponse = q.handleMessage.calls.argsFor(0)[1];
+            handleResponse(resultObj);
+
+            expect(appModule.workerResponseHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message);
             expect(res.locals.message).toEqual({
               type: 'foo2'
             });
@@ -559,10 +603,10 @@ describe('unit/express:', function () {
           });
 
           it('should use loaded application module', function () {
-            var appHandlers = jasmine.createSpyObj(['foo']);
+            var appHandlers = jasmine.createSpyObj(['baz']);
 
             /*jshint camelcase: false */
-            appHandlers.foo.and.returnValue({
+            appHandlers.baz.and.returnValue({
               type: 'foo2',
               ewd_application: 'quux2'
             });
@@ -585,7 +629,7 @@ describe('unit/express:', function () {
             var handleResponse = q.handleMessage.calls.argsFor(0)[1];
             handleResponse(resultObj);
 
-            expect(appHandlers.foo).toHaveBeenCalledWithContext(q, resultObj.message);
+            expect(appHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message);
           });
         });
       });
