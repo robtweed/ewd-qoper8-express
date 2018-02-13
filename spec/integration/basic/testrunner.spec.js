@@ -3,11 +3,11 @@
 var request = require('supertest')('http://localhost:8080');
 var utils = require('../utils');
 
-describe(' - integration/ewd-qoper8-express/basic:', function () {
+describe('integration/ewd-qoper8-express/basic:', function () {
   var cp;
 
   beforeAll(function (done) {
-    cp = utils.fork(require.resolve('./express'), done);
+    cp = utils.fork(require.resolve('./server'), done);
   });
 
   afterAll(function (done) {

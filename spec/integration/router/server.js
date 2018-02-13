@@ -32,7 +32,7 @@ app.use('/qoper8-nextCallback', qx.router({
 });
 
 q.on('start', function () {
-  this.worker.module = path.join(__dirname, 'express-module');
+  this.worker.module = path.join(__dirname, 'worker-module');
   this.log = false;
 });
 

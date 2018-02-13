@@ -18,5 +18,34 @@ module.exports = {
       callback();
     });
     cp.kill();
+  },
+
+  handleResponse: function (res, responseObj) {
+    var message = responseObj.message;
+
+    if (message.error) {
+      res.status(400).send(message);
+    } else {
+      res.send(message);
+    }
+  },
+
+  errorHandler: function () {
+    return function (req, res, next) {
+      var message = {
+        status: 404,
+        response: {
+          error: 'Not found'
+        }
+      };
+
+      if ('error' in res.locals.message) {
+        message.status = res.locals.message.status || 400;
+        message.response.error = res.locals.message.error;
+      }
+
+
+      next(message);
+    };
   }
 };

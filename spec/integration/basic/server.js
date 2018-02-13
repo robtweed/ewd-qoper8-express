@@ -12,12 +12,12 @@ app.use(bodyParser.json());
 var q = new qoper8.masterProcess();
 qx.addTo(q);
 
-app.get('/qoper8/:type', function (req, res) {
+app.post('/qoper8/:type', function (req, res) {
   qx.handleMessage(req, res);
 });
 
 q.on('start', function () {
-  this.worker.module = path.join(__dirname, 'express-module');
+  this.worker.module = path.join(__dirname, 'worker-module');
   this.log = false;
 });
 

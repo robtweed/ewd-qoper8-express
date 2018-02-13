@@ -5,6 +5,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var qoper8 = require('ewd-qoper8');
 var qx = require('../../../');
+var utils = require('../utils');
 
 var app = express();
 app.use(bodyParser.json());
@@ -22,7 +23,7 @@ app.get('/qoper8/test', function (req, res) {
     hello: 'world'
   };
   q.handleMessage(request, function (response) {
-    res.send(response);
+    utils.handleResponse(res, response);
   });
 });
 
@@ -31,17 +32,12 @@ app.get('/qoper8/fail', function (req, res) {
     type: 'unhandled-message',
   };
   q.handleMessage(request, function (response) {
-    var message = response.message;
-    if (message.error) {
-      res.status(400).send(message);
-    } else {
-      res.send(message);
-    }
+    utils.handleResponse(res, response);
   });
 });
 
 q.on('start', function () {
-  this.worker.module = path.join(__dirname, 'express-module');
+  this.worker.module = path.join(__dirname, 'worker-module');
   this.log = false;
 });
 
