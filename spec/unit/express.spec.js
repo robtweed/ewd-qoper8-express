@@ -554,7 +554,7 @@ describe('unit/express:', function () {
             var handleResponse = q.handleMessage.calls.argsFor(0)[1];
             handleResponse(resultObj);
 
-            expect(appModule.workerResponseHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message);
+            expect(appModule.workerResponseHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message, req);
             expect(res.locals.message).toEqual({
               type: 'foo2'
             });
@@ -629,7 +629,7 @@ describe('unit/express:', function () {
             var handleResponse = q.handleMessage.calls.argsFor(0)[1];
             handleResponse(resultObj);
 
-            expect(appHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message);
+            expect(appHandlers.baz).toHaveBeenCalledWithContext(q, resultObj.message, req);
           });
         });
       });
